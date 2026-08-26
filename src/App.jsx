@@ -45,6 +45,12 @@ export default function App() {
   const [unit, setUnit] = useState("C");
   const [theme, setTheme] = useState("light");
   const [recent, setRecent] = useState([]);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("weather-theme");
@@ -176,6 +182,13 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>🌦️ Weather</h1>
+        <span className="live-clock">
+          {now.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+        </span>
         <div className="topbar-actions">
           <button
             className="pill-btn"
