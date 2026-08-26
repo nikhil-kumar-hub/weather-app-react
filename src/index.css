@@ -33,6 +33,13 @@ body.dark {
   font-size: 22px;
 }
 
+.live-clock {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
 .topbar-actions {
   display: flex;
   gap: 8px;
