@@ -46,7 +46,7 @@ function WeeklyChart({ daily }) {
 
   return (
     <svg
-      viewBox={`0 0 ${maxTemps.length * (barWidth + gap)} ${chartHeight + 30}`}
+      viewBox={`0 -15 ${maxTemps.length * (barWidth + gap)} ${chartHeight + 45}`}
       className="weekly-chart"
     >
       {daily.time.map((t, i) => {
