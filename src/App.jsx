@@ -35,6 +35,64 @@ function cToF(c) {
   return (c * 9) / 5 + 32;
 }
 
+function WeeklyChart({ daily }) {
+  const chartHeight = 120;
+  const barWidth = 24;
+  const gap = 16;
+
+  const maxTemps = daily.temperature_2m_max;
+  const overallMax = Math.max(...maxTemps);
+  const overallMin = Math.min(...daily.temperature_2m_min);
+
+  return (
+    <svg
+      viewBox={`0 0 ${maxTemps.length * (barWidth + gap)} ${chartHeight + 30}`}
+      className="weekly-chart"
+    >
+      {daily.time.map((t, i) => {
+        const temp = maxTemps[i];
+        const barHeight =
+          ((temp - overallMin) / (overallMax - overallMin)) * chartHeight;
+        const x = i * (barWidth + gap);
+        const y = chartHeight - barHeight;
+        const dayName =
+          i === 0 ? "Today" : DAY_NAMES[new Date(t).getDay()];
+
+        return (
+          <g key={t}>
+            <rect
+              x={x}
+              y={y}
+              width={barWidth}
+              height={barHeight}
+              fill="orange"
+              rx="4"
+            />
+            <text
+              x={x + barWidth / 2}
+              y={chartHeight + 20}
+              fontSize="10"
+              textAnchor="middle"
+              fill="currentColor"
+            >
+              {dayName}
+            </text>
+            <text
+              x={x + barWidth / 2}
+              y={y - 4}
+              fontSize="10"
+              textAnchor="middle"
+              fill="currentColor"
+            >
+              {Math.round(temp)}°
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 export default function App() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -115,7 +173,7 @@ export default function App() {
     try {
       const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
         name
-      )}&count=1`;
+      )}&count=1&language=en&country=IN`;
       const geoRes = await fetch(geoUrl);
       const geoData = await geoRes.json();
       if (!geoData.results || geoData.results.length === 0) {
@@ -144,7 +202,7 @@ export default function App() {
     try {
       const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
         val
-      )}&count=5`;
+      )}&count=5&language=en&country=IN`;
       const res = await fetch(geoUrl);
       const data = await res.json();
       setSuggestions(data.results || []);
@@ -328,6 +386,11 @@ export default function App() {
                 </div>
               ))}
             </div>
+          </section>
+
+          <section className="forecast-section">
+            <h3>Weekly Trend</h3>
+            <WeeklyChart daily={weather.daily} />
           </section>
 
           <section className="forecast-section">
