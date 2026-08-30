@@ -93,6 +93,13 @@ function WeeklyChart({ daily }) {
   );
 }
 
+function getAlert(code, maxTemp) {
+  const stormCodes = [65, 82, 95, 96, 99];
+  if (stormCodes.includes(code)) return "⚠️ Storm/Heavy rain warning";
+  if (maxTemp > 40) return "🌡️ Extreme heat alert";
+  return null;
+}
+
 export default function App() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -236,8 +243,14 @@ export default function App() {
     return `${Math.round(val)}°${unit}`;
   };
 
+  const alertMsg = weather
+    ? getAlert(weather.current.weather_code, weather.daily.temperature_2m_max[0])
+    : null;
+
   return (
     <div className="app">
+      {alertMsg && <div className="alert-banner">{alertMsg}</div>}
+
       <header className="topbar">
         <h1>🌦️ Weather</h1>
         <span className="live-clock">

@@ -221,7 +221,7 @@ body.dark .hourly-section, body.dark .forecast-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 14px;git commit -m "add logo pop animationgit commit -m "add logo pop animation
   padding: 4px 0;
 }
 
@@ -247,4 +247,13 @@ footer {
 .weather-logo {
   animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: center;
+}
+.alert-banner {
+  background: #ff4d4d;
+  color: white;
+  padding: 10px 16px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 8px;
+  margin: 10px;
 }
