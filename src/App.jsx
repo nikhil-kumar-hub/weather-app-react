@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import "./index.css";
+import WeatherBackground from "./WeatherBackground";
+import { getConditionFromCode } from "./getConditionFromCode";
+import NightSky from "./NightSky";
 
 const WEATHER_CODES = {
   0: ["Clear sky", "☀️"],
@@ -271,195 +274,203 @@ export default function App() {
     : null;
 
   return (
-    <div className="app">
-      {alertMsg && <div className="alert-banner">{alertMsg}</div>}
+    <>
+    {theme === "dark" && <NightSky />}
+    {weather && theme !== "dark" && (
+      <WeatherBackground
+        condition={getConditionFromCode(weather.current.weather_code)}
+      />
+      )}
+      <div className="app">
+        {alertMsg && <div className="alert-banner">{alertMsg}</div>}
 
-      <header className="topbar">
-        <h1>🌦️ Weather</h1>
-        <span className="live-clock">
-          {now.toLocaleTimeString("en-IN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          })}
-        </span>
-        <div className="topbar-actions">
-          <button
-            className="pill-btn"
-            onClick={() => setUnit(unit === "C" ? "F" : "C")}
-          >
-            °{unit === "C" ? "F" : "C"}
-          </button>
-          <button
-            className="pill-btn"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            {theme === "light" ? "🌙" : "☀️"}
-          </button>
-        </div>
-      </header>
-
-      <div className="search-wrap">
-        <div className="search-box">
-          <input
-            value={query}
-            onChange={(e) => handleInputChange(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && searchCity()}
-            placeholder="Search city..."
-          />
-          <button onClick={() => searchCity()}>Search</button>
-          <button className="icon-btn" onClick={useMyLocation} title="My location">
-            📍
-          </button>
-        </div>
-
-        {suggestions.length > 0 && (
-          <ul className="suggestions">
-            {suggestions.map((s) => (
-              <li
-                key={`${s.latitude}-${s.longitude}`}
-                onClick={() => searchCity(s.name)}
-              >
-                {s.name}, {s.admin1 ? s.admin1 + ", " : ""}
-                {s.country}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {recent.length > 0 && (
-          <div className="recent-chips">
-            {recent.map((r) => (
-              <button key={r} onClick={() => searchCity(r.split(",")[0])}>
-                {r}
-              </button>
-            ))}
+        <header className="topbar">
+          <h1>🌦️ Weather</h1>
+          <span className="live-clock">
+            {now.toLocaleTimeString("en-IN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })}
+          </span>
+          <div className="topbar-actions">
+            <button
+              className="pill-btn"
+              onClick={() => setUnit(unit === "C" ? "F" : "C")}
+            >
+              °{unit === "C" ? "F" : "C"}
+            </button>
+            <button
+              className="pill-btn"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
           </div>
-        )}
-      </div>
+        </header>
 
-      {loading && <div className="status">Loading...</div>}
-      {error && <div className="status error">{error}</div>}
+        <div className="search-wrap">
+          <div className="search-box">
+            <input
+              value={query}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && searchCity()}
+              placeholder="Search city..."
+            />
+            <button onClick={() => searchCity()}>Search</button>
+            <button className="icon-btn" onClick={useMyLocation} title="My location">
+              📍
+            </button>
+          </div>
 
-      {!loading && !error && weather && place && (
-        <>
-          <section className="current-card">
-            <h2>
-              {place.name}
-              {place.country ? `, ${place.country}` : ""}
-            </h2>
-            <p className="datetime">
-              {new Date().toLocaleString("en-IN", {
-                weekday: "long",
-                day: "numeric",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-            <div className="temp-row">
-              <span className="icon-big">
-                {getWeatherInfo(weather.current.weather_code)[1]}
-              </span>
-              <span className="temp-big">
-                {displayTemp(weather.current.temperature_2m)}
-              </span>
-            </div>
-            <p className="desc">{getWeatherInfo(weather.current.weather_code)[0]}</p>
+          {suggestions.length > 0 && (
+            <ul className="suggestions">
+              {suggestions.map((s) => (
+                <li
+                  key={`${s.latitude}-${s.longitude}`}
+                  onClick={() => searchCity(s.name)}
+                >
+                  {s.name}, {s.admin1 ? s.admin1 + ", " : ""}
+                  {s.country}
+                </li>
+              ))}
+            </ul>
+          )}
 
-            <div className="details-grid">
-              <div className="detail">
-                <span>Feels like</span>
-                <strong>{displayTemp(weather.current.apparent_temperature)}</strong>
-              </div>
-              <div className="detail">
-                <span>Humidity</span>
-                <strong>{weather.current.relative_humidity_2m}%</strong>
-              </div>
-              <div className="detail">
-                <span>Wind</span>
-                <strong>{weather.current.wind_speed_10m} km/h</strong>
-              </div>
-              <div className="detail">
-                <span>UV Index</span>
-                <strong>{weather.current.uv_index ?? "-"}</strong>
-              </div>
-              <div className="detail">
-                <span>Sunrise</span>
-                <strong>
-                  {new Date(weather.daily.sunrise[0]).toLocaleTimeString("en-IN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </strong>
-              </div>
-              <div className="detail">
-                <span>Sunset</span>
-                <strong>
-                  {new Date(weather.daily.sunset[0]).toLocaleTimeString("en-IN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </strong>
-              </div>
-              <div className="detail">
-                <span>Air Quality</span>
-                <strong>
-                  {airQuality ?? "-"} ({getAqiLabel(airQuality)})
-                </strong>
-              </div>
-            </div>
-          </section>
-
-          <section className="hourly-section">
-            <h3>Next 24 Hours</h3>
-            <div className="hourly-scroll">
-              {weather.hourly.time.slice(0, 24).map((t, i) => (
-                <div className="hour-item" key={t}>
-                  <span>
-                    {new Date(t).toLocaleTimeString("en-IN", {
-                      hour: "2-digit",
-                    })}
-                  </span>
-                  <span className="hour-icon">
-                    {getWeatherInfo(weather.hourly.weather_code[i])[1]}
-                  </span>
-                  <span>{displayTemp(weather.hourly.temperature_2m[i])}</span>
-                </div>
+          {recent.length > 0 && (
+            <div className="recent-chips">
+              {recent.map((r) => (
+                <button key={r} onClick={() => searchCity(r.split(",")[0])}>
+                  {r}
+                </button>
               ))}
             </div>
-          </section>
+          )}
+        </div>
 
-          <section className="forecast-section">
-            <h3>Weekly Trend</h3>
-            <WeeklyChart daily={weather.daily} />
-          </section>
+        {loading && <div className="status">Loading...</div>}
+        {error && <div className="status error">{error}</div>}
 
-          <section className="forecast-section">
-            <h3>6-Day Forecast</h3>
-            <div className="forecast-list">
-              {weather.daily.time.map((t, i) => {
-                const dayName =
-                  i === 0 ? "Today" : DAY_NAMES[new Date(t).getDay()];
-                return (
-                  <div className="forecast-item" key={t}>
-                    <span className="fday">{dayName}</span>
-                    <span className="ficon">
-                      {getWeatherInfo(weather.daily.weather_code[i])[1]}
+        {!loading && !error && weather && place && (
+          <>
+            <section className="current-card">
+              <h2>
+                {place.name}
+                {place.country ? `, ${place.country}` : ""}
+              </h2>
+              <p className="datetime">
+                {new Date().toLocaleString("en-IN", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+              <div className="temp-row">
+                <span className="icon-big">
+                  {getWeatherInfo(weather.current.weather_code)[1]}
+                </span>
+                <span className="temp-big">
+                  {displayTemp(weather.current.temperature_2m)}
+                </span>
+              </div>
+              <p className="desc">{getWeatherInfo(weather.current.weather_code)[0]}</p>
+
+              <div className="details-grid">
+                <div className="detail">
+                  <span>Feels like</span>
+                  <strong>{displayTemp(weather.current.apparent_temperature)}</strong>
+                </div>
+                <div className="detail">
+                  <span>Humidity</span>
+                  <strong>{weather.current.relative_humidity_2m}%</strong>
+                </div>
+                <div className="detail">
+                  <span>Wind</span>
+                  <strong>{weather.current.wind_speed_10m} km/h</strong>
+                </div>
+                <div className="detail">
+                  <span>UV Index</span>
+                  <strong>{weather.current.uv_index ?? "-"}</strong>
+                </div>
+                <div className="detail">
+                  <span>Sunrise</span>
+                  <strong>
+                    {new Date(weather.daily.sunrise[0]).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </strong>
+                </div>
+                <div className="detail">
+                  <span>Sunset</span>
+                  <strong>
+                    {new Date(weather.daily.sunset[0]).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </strong>
+                </div>
+                <div className="detail">
+                  <span>Air Quality</span>
+                  <strong>
+                    {airQuality ?? "-"} ({getAqiLabel(airQuality)})
+                  </strong>
+                </div>
+              </div>
+            </section>
+
+            <section className="hourly-section">
+              <h3>Next 24 Hours</h3>
+              <div className="hourly-scroll">
+                {weather.hourly.time.slice(0, 24).map((t, i) => (
+                  <div className="hour-item" key={t}>
+                    <span>
+                      {new Date(t).toLocaleTimeString("en-IN", {
+                        hour: "2-digit",
+                      })}
                     </span>
-                    <span className="frange">
-                      {displayTemp(weather.daily.temperature_2m_min[i])} /{" "}
-                      {displayTemp(weather.daily.temperature_2m_max[i])}
+                    <span className="hour-icon">
+                      {getWeatherInfo(weather.hourly.weather_code[i])[1]}
                     </span>
+                    <span>{displayTemp(weather.hourly.temperature_2m[i])}</span>
                   </div>
-                );
-              })}
-            </div>
-          </section>
-        </>
-      )}
+                ))}
+              </div>
+            </section>
 
-      <footer>Data by Open-Meteo</footer>
-    </div>
+            <section className="forecast-section">
+              <h3>Weekly Trend</h3>
+              <WeeklyChart daily={weather.daily} />
+            </section>
+
+            <section className="forecast-section">
+              <h3>6-Day Forecast</h3>
+              <div className="forecast-list">
+                {weather.daily.time.map((t, i) => {
+                  const dayName =
+                    i === 0 ? "Today" : DAY_NAMES[new Date(t).getDay()];
+                  return (
+                    <div className="forecast-item" key={t}>
+                      <span className="fday">{dayName}</span>
+                      <span className="ficon">
+                        {getWeatherInfo(weather.daily.weather_code[i])[1]}
+                      </span>
+                      <span className="frange">
+                        {displayTemp(weather.daily.temperature_2m_min[i])} /{" "}
+                        {displayTemp(weather.daily.temperature_2m_max[i])}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </>
+        )}
+
+        <footer>Data by Open-Meteo</footer>
+      </div>
+    </>
   );
 }

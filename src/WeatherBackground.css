@@ -1,0 +1,99 @@
+.weather-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  transition: background 0.6s ease;
+}
+
+/* ---- RAIN ---- */
+.rain-bg {
+  background: linear-gradient(to bottom, #4b5563, #1f2937);
+}
+.rain-bg .drop {
+  position: absolute;
+  top: -10%;
+  width: 2px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.5);
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-10vh); opacity: 0.8; }
+  100% { transform: translateY(110vh); opacity: 0.4; }
+}
+
+.rain-bg.thunder {
+  animation: flash 6s infinite;
+}
+@keyframes flash {
+  0%, 96%, 100% { filter: brightness(1); }
+  97% { filter: brightness(2.2); }
+  98% { filter: brightness(1); }
+  99% { filter: brightness(1.8); }
+}
+
+/* ---- SNOW ---- */
+.snow-bg {
+  background: linear-gradient(to bottom, #6b7c93, #a8b8c8);
+}
+.snow-bg .flake {
+  position: absolute;
+  top: -10%;
+  color: #fff;
+  animation-name: snowfall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes snowfall {
+  0% { transform: translateY(-10vh) translateX(0); opacity: 0.9; }
+  50% { transform: translateY(50vh) translateX(15px); }
+  100% { transform: translateY(110vh) translateX(-10px); opacity: 0.6; }
+}
+
+/* ---- CLEAR fallback gradient ---- */
+.clear-bg {
+  background: linear-gradient(to bottom, #4a90d9, #a8d8ea);
+}
+
+/* ---- CLOUDY / OVERCAST: drifting cloud layers ---- */
+.cloudy-bg {
+  background: linear-gradient(to bottom, #6b8ba4, #b8ccd8);
+}
+.cloudy-bg .cloud {
+  position: absolute;
+  top: var(--top);
+  width: var(--size);
+  height: calc(var(--size) * 0.4);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50px;
+  filter: blur(2px);
+  animation: drift linear infinite;
+  animation-duration: var(--dur);
+}
+.cloudy-bg .cloud::before,
+.cloudy-bg .cloud::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+}
+.cloudy-bg .cloud::before {
+  width: 60%;
+  height: 140%;
+  top: -60%;
+  left: 10%;
+}
+.cloudy-bg .cloud::after {
+  width: 45%;
+  height: 110%;
+  top: -40%;
+  right: 15%;
+}
+@keyframes drift {
+  0% { transform: translateX(-20vw); }
+  100% { transform: translateX(120vw); }
+}
