@@ -140,6 +140,7 @@ export default function App() {
     }
 
     fetchWeatherByCoords(28.6139, 77.209, { name: "Delhi", country: "India" });
+    fetchAirQuality(28.6139, 77.209);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
