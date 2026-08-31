@@ -35,6 +35,14 @@ function cToF(c) {
   return (c * 9) / 5 + 32;
 }
 
+function getAqiLabel(aqi) {
+  if (aqi == null) return "-";
+  if (aqi <= 50) return "Good";
+  if (aqi <= 100) return "Moderate";
+  if (aqi <= 150) return "Unhealthy (sensitive)";
+  return "Unhealthy";
+}
+
 function WeeklyChart({ daily }) {
   const chartHeight = 120;
   const barWidth = 24;
@@ -111,6 +119,7 @@ export default function App() {
   const [theme, setTheme] = useState("light");
   const [recent, setRecent] = useState([]);
   const [now, setNow] = useState(new Date());
+  const [airQuality, setAirQuality] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -171,6 +180,17 @@ export default function App() {
     }
   }
 
+  async function fetchAirQuality(lat, lon) {
+    try {
+      const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setAirQuality(data.current.us_aqi);
+    } catch {
+      setAirQuality(null);
+    }
+  }
+
   async function searchCity(cityName) {
     const name = (cityName ?? query).trim();
     if (!name) return;
@@ -193,6 +213,7 @@ export default function App() {
         name: p.name,
         country: p.country,
       });
+      await fetchAirQuality(p.latitude, p.longitude);
       setQuery("");
     } catch (err) {
       setError("Something went wrong.");
@@ -230,6 +251,7 @@ export default function App() {
           name: "Your Location",
           country: "",
         });
+        fetchAirQuality(pos.coords.latitude, pos.coords.longitude);
       },
       () => {
         setError("Location access denied.");
@@ -377,6 +399,12 @@ export default function App() {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
+                </strong>
+              </div>
+              <div className="detail">
+                <span>Air Quality</span>
+                <strong>
+                  {airQuality ?? "-"} ({getAqiLabel(airQuality)})
                 </strong>
               </div>
             </div>
